@@ -12,144 +12,316 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(180deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
         }
         
         .container {
             max-width: 500px;
             margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px;
+            padding: 40px 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
         }
         
         .header h1 {
-            font-size: 28px;
-            font-weight: 600;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
         }
         
         .input-section {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
         
         .input-group {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            position: relative;
         }
         
         #todoInput {
             flex: 1;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
             outline: none;
-            transition: border-color 0.2s;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         #todoInput:focus {
-            border-color: #667eea;
+            background: white;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
         }
         
         #addBtn {
-            padding: 12px 24px;
-            background: #667eea;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 17px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
         
         #addBtn:hover {
-            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
         
         #addBtn:active {
-            transform: scale(0.98);
+            transform: translateY(0) scale(0.98);
         }
         
         .todo-list {
             padding: 20px;
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .todo-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .todo-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .todo-list::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
         }
         
         .todo-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px;
-            margin-bottom: 8px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            transition: all 0.2s;
+            gap: 14px;
+            padding: 16px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .todo-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: scaleY(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .todo-item:hover {
-            background: #e9ecef;
+            background: rgba(255, 255, 255, 1);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .todo-item:hover::before {
+            transform: scaleY(1);
         }
         
         .todo-item.completed {
-            opacity: 0.6;
+            opacity: 0.5;
         }
         
         .todo-item.completed .todo-text {
             text-decoration: line-through;
+            color: #999;
+        }
+        
+        .todo-item.deleting {
+            animation: trashAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes trashAnimation {
+            0% {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translateX(100px) scale(0.8);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateX(200px) scale(0.3);
+                opacity: 0;
+            }
         }
         
         .todo-checkbox {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             cursor: pointer;
+            accent-color: #667eea;
+            border-radius: 6px;
         }
         
         .todo-text {
             flex: 1;
-            font-size: 16px;
-            color: #333;
+            font-size: 17px;
+            color: #1d1d1f;
+            font-weight: 400;
+            letter-spacing: -0.2px;
         }
         
         .delete-btn {
-            padding: 6px 12px;
-            background: #ff4757;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
         }
         
         .delete-btn:hover {
-            background: #ee3742;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+        }
+        
+        .delete-btn:active {
+            transform: translateY(0) scale(0.95);
         }
         
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 60px 20px;
             color: #999;
+            font-size: 17px;
         }
         
         .empty-state::before {
             content: "📝";
-            font-size: 48px;
+            font-size: 64px;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        /* キラキラエフェクト */
+        .sparkle-container {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        .sparkle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ffd700;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
+            animation: sparkleAnimation 1.5s ease-out forwards;
+        }
+        
+        @keyframes sparkleAnimation {
+            0% {
+                transform: translate(0, 0) scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* ゴミ箱アイコン */
+        .trash-icon {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+            z-index: 1000;
+            font-size: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .trash-icon.active {
+            transform: scale(1.2);
+            box-shadow: 0 6px 30px rgba(255, 107, 107, 0.6);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 0;
+                margin: 0;
+                max-width: 100%;
+            }
+            
+            .trash-icon {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -175,13 +347,46 @@
             <div class="empty-state">TODOがありません</div>
         </div>
     </div>
+    
+    <div class="trash-icon" id="trashIcon">🗑️</div>
 
     <script>
         const todoInput = document.getElementById('todoInput');
         const addBtn = document.getElementById('addBtn');
         const todoList = document.getElementById('todoList');
+        const trashIcon = document.getElementById('trashIcon');
         
         let todos = JSON.parse(localStorage.getItem('todos')) || [];
+        let completedCount = 0;
+        
+        function createSparkles(x, y) {
+            const container = document.createElement('div');
+            container.className = 'sparkle-container';
+            document.body.appendChild(container);
+            
+            const count = 20;
+            for (let i = 0; i < count; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                
+                const angle = (Math.PI * 2 * i) / count;
+                const distance = 100 + Math.random() * 50;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                sparkle.style.left = x + 'px';
+                sparkle.style.top = y + 'px';
+                sparkle.style.setProperty('--tx', tx + 'px');
+                sparkle.style.setProperty('--ty', ty + 'px');
+                sparkle.style.animationDelay = (Math.random() * 0.3) + 's';
+                
+                container.appendChild(sparkle);
+            }
+            
+            setTimeout(() => {
+                container.remove();
+            }, 2000);
+        }
         
         function renderTodos() {
             if (todos.length === 0) {
@@ -190,7 +395,7 @@
             }
             
             todoList.innerHTML = todos.map((todo, index) => `
-                <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                <div class="todo-item ${todo.completed ? 'completed' : ''}" data-index="${index}">
                     <input 
                         type="checkbox" 
                         class="todo-checkbox" 
@@ -213,10 +418,21 @@
             const text = todoInput.value.trim();
             if (!text) return;
             
+            const rect = addBtn.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            createSparkles(x, y);
+            
             todos.push({ text, completed: false });
             todoInput.value = '';
             saveTodos();
             renderTodos();
+            
+            // 入力フィールドにフォーカスを戻す
+            setTimeout(() => {
+                todoInput.focus();
+            }, 100);
         }
         
         function deleteTodo(index) {
@@ -226,9 +442,28 @@
         }
         
         function toggleTodo(index) {
+            const wasCompleted = todos[index].completed;
             todos[index].completed = !todos[index].completed;
             saveTodos();
-            renderTodos();
+            
+            if (todos[index].completed && !wasCompleted) {
+                // 完了したタスクをゴミ箱に捨てるアニメーション
+                const todoItem = document.querySelector(`[data-index="${index}"]`);
+                if (todoItem) {
+                    todoItem.classList.add('deleting');
+                    
+                    // ゴミ箱アイコンをアニメーション
+                    trashIcon.classList.add('active');
+                    
+                    setTimeout(() => {
+                        // 実際には削除せず、完了状態を保持
+                        renderTodos();
+                        trashIcon.classList.remove('active');
+                    }, 600);
+                }
+            } else {
+                renderTodos();
+            }
         }
         
         function saveTodos() {

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="日付の加算・減算、2つの日付の差を計算。年齢計算や期限管理に便利な無料の日付計算ツール。">
+    <meta name="keywords" content="日付計算,日数計算,年齢計算,期間計算,日付差,オンラインツール">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="日付計算 - WebToolBox">
+    <meta property="og:description" content="日付の加算・減算、2つの日付の差を計算。年齢計算や期限管理に便利な無料ツール。">
+    <link rel="canonical" href="https://webtoolbox.example.com/tools/date-calculator.html">
+    <title>日付計算 | 日数計算・年齢計算ツール - WebToolBox</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+    <style>
+        .calc-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .calc-tab {
+            padding: 12px 24px;
+            border: 2px solid var(--gray-200);
+            background: white;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        .calc-tab.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+        .calc-panel {
+            display: none;
+        }
+        .calc-panel.active {
+            display: block;
+        }
+        .date-inputs {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .date-input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .date-input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--gray-600);
+        }
+        .date-input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 16px;
+        }
+        .date-input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .operator {
+            font-size: 32px;
+            color: var(--gray-400);
+            padding-top: 24px;
+        }
+        .number-input-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .number-input {
+            flex: 1;
+            min-width: 100px;
+        }
+        .number-input label {
+            display: block;
+            font-size: 13px;
+            color: var(--gray-500);
+            margin-bottom: 6px;
+        }
+        .number-input input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .result-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 32px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            margin-top: 24px;
+        }
+        .result-main {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .result-sub {
+            opacity: 0.9;
+            font-size: 18px;
+        }
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .result-detail {
+            text-align: center;
+        }
+        .result-detail-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .result-detail-label {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        .quick-dates {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .quick-date {
+            padding: 8px 16px;
+            background: var(--gray-100);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        .quick-date:hover {
+            background: var(--gray-200);
+        }
+        .age-result {
+            background: var(--gray-50);
+            padding: 24px;
+            border-radius: var(--radius);
+            margin-top: 20px;
+        }
+        .age-main {
+            font-size: 64px;
+            font-weight: 800;
+            color: var(--primary);
+            text-align: center;
+        }
+        .age-label {
+            text-align: center;
+            color: var(--gray-600);
+            font-size: 18px;
+        }
+        .age-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .age-detail {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .age-detail-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+        .age-detail-label {
+            font-size: 13px;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body class="tool-page">
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-content">
+            <a href="../" class="logo">
+                <span class="logo-icon">🧰</span>
+                <span>WebToolBox</span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../">ツール一覧</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Tool Header -->
+    <section class="tool-header">
+        <h1>📅 日付計算</h1>
+        <p>日付の加算・減算、期間計算、年齢計算</p>
+    </section>
+
+    <!-- Main Content -->
+    <main class="tool-content">
+        <div class="tool-main">
+            <!-- Tabs -->
+            <div class="calc-tabs">
+                <button class="calc-tab active" data-tab="diff" onclick="switchTab('diff')">日付の差</button>
+                <button class="calc-tab" data-tab="add" onclick="switchTab('add')">日付の加減算</button>
+                <button class="calc-tab" data-tab="age" onclick="switchTab('age')">年齢計算</button>
+                <button class="calc-tab" data-tab="weekday" onclick="switchTab('weekday')">曜日検索</button>
+            </div>
+
+            <!-- 日付の差 -->
+            <div class="calc-panel active" id="panel-diff">
+                <div class="date-inputs">
+                    <div class="date-input-group">
+                        <label>開始日</label>
+                        <input type="date" id="diffStart" onchange="calcDiff()">
+                        <div class="quick-dates">
+                            <button class="quick-date" onclick="setDate('diffStart', 'today')">今日</button>
+                            <button class="quick-date" onclick="setDate('diffStart', 'yearStart')">年初</button>
+                        </div>
+                    </div>
+                    <span class="operator">→</span>
+                    <div class="date-input-group">
+                        <label>終了日</label>
+                        <input type="date" id="diffEnd" onchange="calcDiff()">
+                        <div class="quick-dates">
+                            <button class="quick-date" onclick="setDate('diffEnd', 'today')">今日</button>
+                            <button class="quick-date" onclick="setDate('diffEnd', 'yearEnd')">年末</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card" id="diffResult" style="display: none;">
+                    <div class="result-main" id="diffDays">-</div>
+                    <div class="result-sub">日間</div>
+                    <div class="result-details">
+                        <div class="result-detail">
+                            <div class="result-detail-value" id="diffWeeks">-</div>
+                            <div class="result-detail-label">週</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="result-detail-value" id="diffMonths">-</div>
+                            <div class="result-detail-label">ヶ月</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="result-detail-value" id="diffYears">-</div>
+                            <div class="result-detail-label">年</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="result-detail-value" id="diffHours">-</div>
+                            <div class="result-detail-label">時間</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日付の加減算 -->
+            <div class="calc-panel" id="panel-add">
+                <div class="date-input-group" style="max-width: 300px;">
+                    <label>基準日</label>
+                    <input type="date" id="addBase" onchange="calcAdd()">
+                    <div class="quick-dates">
+                        <button class="quick-date" onclick="setDate('addBase', 'today')">今日</button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label class="form-label">加算する期間</label>
+                    <div class="number-input-group">
+                        <div class="number-input">
+                            <label>年</label>
+                            <input type="number" id="addYears" value="0" onchange="calcAdd()">
+                        </div>
+                        <div class="number-input">
+                            <label>月</label>
+                            <input type="number" id="addMonths" value="0" onchange="calcAdd()">
+                        </div>
+                        <div class="number-input">
+                            <label>週</label>
+                            <input type="number" id="addWeeks" value="0" onchange="calcAdd()">
+                        </div>
+                        <div class="number-input">
+                            <label>日</label>
+                            <input type="number" id="addDays" value="0" onchange="calcAdd()">
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; color: var(--gray-500); margin-top: 8px;">
+                        ※マイナスの値で減算できます
+                    </p>
+                </div>
+
+                <div class="quick-dates" style="margin-top: 16px;">
+                    <button class="quick-date" onclick="setAddPreset(0, 1, 0, 0)">+1ヶ月</button>
+                    <button class="quick-date" onclick="setAddPreset(0, 3, 0, 0)">+3ヶ月</button>
+                    <button class="quick-date" onclick="setAddPreset(0, 6, 0, 0)">+半年</button>
+                    <button class="quick-date" onclick="setAddPreset(1, 0, 0, 0)">+1年</button>
+                    <button class="quick-date" onclick="setAddPreset(0, 0, 1, 0)">+1週間</button>
+                    <button class="quick-date" onclick="setAddPreset(0, 0, 0, 30)">+30日</button>
+                    <button class="quick-date" onclick="setAddPreset(0, 0, 0, 100)">+100日</button>
+                </div>
+
+                <div class="result-card" id="addResult" style="display: none;">
+                    <div class="result-sub">計算結果</div>
+                    <div class="result-main" id="addResultDate">-</div>
+                    <div class="result-sub" id="addResultWeekday">-</div>
+                </div>
+            </div>
+
+            <!-- 年齢計算 -->
+            <div class="calc-panel" id="panel-age">
+                <div class="date-inputs">
+                    <div class="date-input-group">
+                        <label>生年月日</label>
+                        <input type="date" id="birthDate" onchange="calcAge()">
+                    </div>
+                    <span class="operator">→</span>
+                    <div class="date-input-group">
+                        <label>基準日</label>
+                        <input type="date" id="ageBase" onchange="calcAge()">
+                        <div class="quick-dates">
+                            <button class="quick-date" onclick="setDate('ageBase', 'today')">今日</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="age-result" id="ageResult" style="display: none;">
+                    <div class="age-main" id="ageYears">-</div>
+                    <div class="age-label">歳</div>
+                    <div class="age-details">
+                        <div class="age-detail">
+                            <div class="age-detail-value" id="ageMonths">-</div>
+                            <div class="age-detail-label">ヶ月</div>
+                        </div>
+                        <div class="age-detail">
+                            <div class="age-detail-value" id="ageDays">-</div>
+                            <div class="age-detail-label">日</div>
+                        </div>
+                        <div class="age-detail">
+                            <div class="age-detail-value" id="ageTotalDays">-</div>
+                            <div class="age-detail-label">総日数</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--gray-200);">
+                        <p style="text-align: center; color: var(--gray-600);">
+                            次の誕生日まで <strong id="nextBirthday">-</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 曜日検索 -->
+            <div class="calc-panel" id="panel-weekday">
+                <div class="date-input-group" style="max-width: 300px;">
+                    <label>日付を入力</label>
+                    <input type="date" id="weekdayDate" onchange="calcWeekday()">
+                    <div class="quick-dates">
+                        <button class="quick-date" onclick="setDate('weekdayDate', 'today')">今日</button>
+                    </div>
+                </div>
+
+                <div class="result-card" id="weekdayResult" style="display: none;">
+                    <div class="result-sub" id="weekdayFullDate">-</div>
+                    <div class="result-main" id="weekdayName">-</div>
+                    <div class="result-details">
+                        <div class="result-detail">
+                            <div class="result-detail-value" id="weekdayWeekNum">-</div>
+                            <div class="result-detail-label">年の第N週</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="result-detail-value" id="weekdayDayOfYear">-</div>
+                            <div class="result-detail-label">年の第N日</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="result-detail-value" id="weekdayQuarter">-</div>
+                            <div class="result-detail-label">四半期</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-container horizontal">
+            <span>広告スペース (728x90)</span>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-box">
+            <h2>日付計算ツールの使い方</h2>
+            <ul>
+                <li><strong>日付の差</strong> - 2つの日付間の日数・週数・月数を計算</li>
+                <li><strong>日付の加減算</strong> - 基準日に年・月・週・日を加算または減算</li>
+                <li><strong>年齢計算</strong> - 生年月日から正確な年齢を計算</li>
+                <li><strong>曜日検索</strong> - 特定の日付の曜日や年間での位置を確認</li>
+            </ul>
+        </div>
+
+        <!-- Use Cases -->
+        <div class="info-box">
+            <h2>こんな時に便利</h2>
+            <ul>
+                <li>契約期間の計算</li>
+                <li>イベントまでのカウントダウン</li>
+                <li>年齢確認が必要な手続き</li>
+                <li>プロジェクトのスケジュール管理</li>
+                <li>記念日までの日数計算</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="../">ホーム</a>
+                <a href="../#tools">ツール一覧</a>
+            </div>
+            <p class="copyright">&copy; 2024 WebToolBox. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/common.js"></script>
+    <script>
+        const weekdays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+
+        // 初期化
+        function init() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('diffStart').value = today;
+            document.getElementById('diffEnd').value = today;
+            document.getElementById('addBase').value = today;
+            document.getElementById('ageBase').value = today;
+            document.getElementById('weekdayDate').value = today;
+        }
+
+        // タブ切り替え
+        function switchTab(tab) {
+            document.querySelectorAll('.calc-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.calc-panel').forEach(p => p.classList.remove('active'));
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById(`panel-${tab}`).classList.add('active');
+        }
+
+        // 日付プリセット設定
+        function setDate(inputId, preset) {
+            const today = new Date();
+            let date;
+
+            switch (preset) {
+                case 'today':
+                    date = today;
+                    break;
+                case 'yearStart':
+                    date = new Date(today.getFullYear(), 0, 1);
+                    break;
+                case 'yearEnd':
+                    date = new Date(today.getFullYear(), 11, 31);
+                    break;
+            }
+
+            document.getElementById(inputId).value = date.toISOString().split('T')[0];
+            
+            // 再計算
+            if (inputId.includes('diff')) calcDiff();
+            else if (inputId.includes('add')) calcAdd();
+            else if (inputId.includes('age') || inputId.includes('birth')) calcAge();
+            else if (inputId.includes('weekday')) calcWeekday();
+        }
+
+        // 日付の差を計算
+        function calcDiff() {
+            const start = new Date(document.getElementById('diffStart').value);
+            const end = new Date(document.getElementById('diffEnd').value);
+
+            if (isNaN(start) || isNaN(end)) return;
+
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffWeeks = (diffDays / 7).toFixed(1);
+            const diffMonths = (diffDays / 30.44).toFixed(1);
+            const diffYears = (diffDays / 365.25).toFixed(2);
+            const diffHours = diffDays * 24;
+
+            document.getElementById('diffDays').textContent = formatNumber(diffDays);
+            document.getElementById('diffWeeks').textContent = diffWeeks;
+            document.getElementById('diffMonths').textContent = diffMonths;
+            document.getElementById('diffYears').textContent = diffYears;
+            document.getElementById('diffHours').textContent = formatNumber(diffHours);
+            document.getElementById('diffResult').style.display = 'block';
+        }
+
+        // 日付の加減算
+        function calcAdd() {
+            const base = new Date(document.getElementById('addBase').value);
+            if (isNaN(base)) return;
+
+            const years = parseInt(document.getElementById('addYears').value) || 0;
+            const months = parseInt(document.getElementById('addMonths').value) || 0;
+            const weeks = parseInt(document.getElementById('addWeeks').value) || 0;
+            const days = parseInt(document.getElementById('addDays').value) || 0;
+
+            const result = new Date(base);
+            result.setFullYear(result.getFullYear() + years);
+            result.setMonth(result.getMonth() + months);
+            result.setDate(result.getDate() + weeks * 7 + days);
+
+            const dateStr = result.toLocaleDateString('ja-JP', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const weekday = weekdays[result.getDay()];
+
+            document.getElementById('addResultDate').textContent = dateStr;
+            document.getElementById('addResultWeekday').textContent = weekday;
+            document.getElementById('addResult').style.display = 'block';
+        }
+
+        // 加算プリセット
+        function setAddPreset(years, months, weeks, days) {
+            document.getElementById('addYears').value = years;
+            document.getElementById('addMonths').value = months;
+            document.getElementById('addWeeks').value = weeks;
+            document.getElementById('addDays').value = days;
+            calcAdd();
+        }
+
+        // 年齢計算
+        function calcAge() {
+            const birth = new Date(document.getElementById('birthDate').value);
+            const base = new Date(document.getElementById('ageBase').value);
+
+            if (isNaN(birth) || isNaN(base)) return;
+
+            // 年齢計算
+            let years = base.getFullYear() - birth.getFullYear();
+            let months = base.getMonth() - birth.getMonth();
+            let days = base.getDate() - birth.getDate();
+
+            if (days < 0) {
+                months--;
+                const prevMonth = new Date(base.getFullYear(), base.getMonth(), 0);
+                days += prevMonth.getDate();
+            }
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            // 総日数
+            const totalDays = Math.floor((base - birth) / (1000 * 60 * 60 * 24));
+
+            // 次の誕生日
+            let nextBirthday = new Date(base.getFullYear(), birth.getMonth(), birth.getDate());
+            if (nextBirthday <= base) {
+                nextBirthday.setFullYear(nextBirthday.getFullYear() + 1);
+            }
+            const daysUntilBirthday = Math.ceil((nextBirthday - base) / (1000 * 60 * 60 * 24));
+
+            document.getElementById('ageYears').textContent = years;
+            document.getElementById('ageMonths').textContent = months;
+            document.getElementById('ageDays').textContent = days;
+            document.getElementById('ageTotalDays').textContent = formatNumber(totalDays);
+            document.getElementById('nextBirthday').textContent = `${daysUntilBirthday}日`;
+            document.getElementById('ageResult').style.display = 'block';
+        }
+
+        // 曜日検索
+        function calcWeekday() {
+            const date = new Date(document.getElementById('weekdayDate').value);
+            if (isNaN(date)) return;
+
+            const weekday = weekdays[date.getDay()];
+            const fullDate = date.toLocaleDateString('ja-JP', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // 年の第N週
+            const startOfYear = new Date(date.getFullYear(), 0, 1);
+            const weekNum = Math.ceil((((date - startOfYear) / (1000 * 60 * 60 * 24)) + startOfYear.getDay() + 1) / 7);
+
+            // 年の第N日
+            const dayOfYear = Math.ceil((date - startOfYear) / (1000 * 60 * 60 * 24)) + 1;
+
+            // 四半期
+            const quarter = Math.ceil((date.getMonth() + 1) / 3);
+
+            document.getElementById('weekdayFullDate').textContent = fullDate;
+            document.getElementById('weekdayName').textContent = weekday;
+            document.getElementById('weekdayWeekNum').textContent = `第${weekNum}週`;
+            document.getElementById('weekdayDayOfYear').textContent = `${dayOfYear}日目`;
+            document.getElementById('weekdayQuarter').textContent = `Q${quarter}`;
+            document.getElementById('weekdayResult').style.display = 'block';
+        }
+
+        // 初期化
+        init();
+        calcDiff();
+        calcWeekday();
+    </script>
+</body>
+</html>

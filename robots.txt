@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://webtoolbox.example.com/sitemap.xml

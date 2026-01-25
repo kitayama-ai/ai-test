@@ -1,0 +1,16 @@
+{
+    "name": "WebToolBox - 無料オンラインツール集",
+    "short_name": "WebToolBox",
+    "description": "登録不要・完全無料の便利なWebツール集。文字数カウント、JSON整形、QRコード生成など多数のツールを提供。",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#6366f1",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧰</text></svg>",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}

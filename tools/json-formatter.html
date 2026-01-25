@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="無料のJSON整形・検証ツール。JSONを見やすくフォーマット、構文エラーチェック、圧縮機能も搭載。開発者必須のオンラインツール。">
+    <meta name="keywords" content="JSON整形,JSONフォーマット,JSON検証,JSONバリデーター,JSON圧縮,オンラインツール">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="JSON整形ツール - WebToolBox">
+    <meta property="og:description" content="JSONデータを見やすく整形・検証。圧縮機能も搭載。開発者必須の無料ツール。">
+    <link rel="canonical" href="https://webtoolbox.example.com/tools/json-formatter.html">
+    <title>JSON整形ツール | 無料オンラインJSONフォーマッター - WebToolBox</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+    <style>
+        .json-editor {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            tab-size: 2;
+        }
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            display: none;
+        }
+        .success-message.show {
+            display: block;
+        }
+        .indent-options {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .indent-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--gray-200);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .indent-btn.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+        .json-stats {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+        .json-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .json-stat strong {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body class="tool-page">
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-content">
+            <a href="../" class="logo">
+                <span class="logo-icon">🧰</span>
+                <span>WebToolBox</span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../">ツール一覧</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Tool Header -->
+    <section class="tool-header">
+        <h1>📋 JSON整形ツール</h1>
+        <p>JSONデータを見やすく整形・検証・圧縮</p>
+    </section>
+
+    <!-- Main Content -->
+    <main class="tool-content">
+        <div class="tool-main">
+            <!-- Input Area -->
+            <div class="form-group">
+                <label class="form-label" for="jsonInput">JSONを入力</label>
+                <textarea 
+                    id="jsonInput" 
+                    class="form-textarea json-editor" 
+                    placeholder='{"key": "value", "array": [1, 2, 3]}'
+                    style="min-height: 200px;"
+                ></textarea>
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+            </div>
+
+            <!-- Options -->
+            <div class="form-group">
+                <label class="form-label">インデント</label>
+                <div class="indent-options">
+                    <button class="indent-btn" data-indent="2" onclick="setIndent(2)">2スペース</button>
+                    <button class="indent-btn active" data-indent="4" onclick="setIndent(4)">4スペース</button>
+                    <button class="indent-btn" data-indent="tab" onclick="setIndent('tab')">タブ</button>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="formatJSON()">
+                    ✨ 整形する
+                </button>
+                <button class="btn btn-secondary" onclick="minifyJSON()">
+                    📦 圧縮する
+                </button>
+                <button class="btn btn-secondary" onclick="validateJSON()">
+                    ✅ 検証のみ
+                </button>
+            </div>
+
+            <!-- Output Area -->
+            <div class="form-group" style="margin-top: 24px;">
+                <label class="form-label" for="jsonOutput">出力結果</label>
+                <div class="code-block" style="position: relative;">
+                    <button class="copy-btn" onclick="copyOutput()">コピー</button>
+                    <pre id="jsonOutput" style="min-height: 150px; margin: 0;"></pre>
+                </div>
+                <div class="json-stats" id="jsonStats"></div>
+            </div>
+
+            <!-- Additional Buttons -->
+            <div class="btn-group" style="margin-top: 16px;">
+                <button class="btn btn-secondary" onclick="clearAll()">
+                    🗑️ クリア
+                </button>
+                <button class="btn btn-success" onclick="downloadJSON()">
+                    💾 ダウンロード
+                </button>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-container horizontal">
+            <span>広告スペース (728x90)</span>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-box">
+            <h2>JSON整形ツールの使い方</h2>
+            <p>このツールは、JSONデータを見やすく整形したり、構文エラーをチェックしたりできます。</p>
+            <ul>
+                <li><strong>整形する</strong> - JSONを読みやすいフォーマットに変換</li>
+                <li><strong>圧縮する</strong> - 不要な空白を削除してファイルサイズを削減</li>
+                <li><strong>検証のみ</strong> - JSONの構文エラーをチェック</li>
+            </ul>
+        </div>
+
+        <!-- Tips -->
+        <div class="info-box">
+            <h2>よくあるJSON構文エラー</h2>
+            <ul>
+                <li>キーがダブルクォートで囲まれていない</li>
+                <li>末尾のカンマ（trailing comma）</li>
+                <li>シングルクォートの使用（ダブルクォートが必要）</li>
+                <li>コメントの記述（JSONはコメント非対応）</li>
+                <li>数値が0で始まっている（0x, 0oなど）</li>
+            </ul>
+        </div>
+
+        <!-- Sample -->
+        <div class="info-box">
+            <h2>サンプルJSON</h2>
+            <button class="btn btn-secondary" onclick="loadSample()" style="margin-bottom: 16px;">
+                サンプルを読み込む
+            </button>
+            <pre style="background: var(--gray-100); padding: 16px; border-radius: 8px; overflow: auto; font-size: 13px;">{
+  "name": "WebToolBox",
+  "version": "1.0.0",
+  "tools": ["JSON整形", "文字数カウント", "QRコード生成"],
+  "features": {
+    "free": true,
+    "noRegistration": true
+  }
+}</pre>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="../">ホーム</a>
+                <a href="../#tools">ツール一覧</a>
+            </div>
+            <p class="copyright">&copy; 2024 WebToolBox. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/common.js"></script>
+    <script>
+        let indentSize = 4;
+        let indentChar = ' ';
+
+        const jsonInput = document.getElementById('jsonInput');
+        const jsonOutput = document.getElementById('jsonOutput');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const jsonStats = document.getElementById('jsonStats');
+
+        // インデント設定
+        function setIndent(value) {
+            document.querySelectorAll('.indent-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-indent="${value}"]`).classList.add('active');
+            
+            if (value === 'tab') {
+                indentSize = 1;
+                indentChar = '\t';
+            } else {
+                indentSize = value;
+                indentChar = ' ';
+            }
+        }
+
+        // メッセージ表示
+        function showError(msg) {
+            errorMessage.textContent = '❌ ' + msg;
+            errorMessage.classList.add('show');
+            successMessage.classList.remove('show');
+        }
+
+        function showSuccess(msg) {
+            successMessage.textContent = '✅ ' + msg;
+            successMessage.classList.add('show');
+            errorMessage.classList.remove('show');
+        }
+
+        function hideMessages() {
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
+        }
+
+        // JSON統計
+        function updateStats(obj) {
+            const stats = analyzeJSON(obj);
+            jsonStats.innerHTML = `
+                <span class="json-stat">オブジェクト: <strong>${stats.objects}</strong></span>
+                <span class="json-stat">配列: <strong>${stats.arrays}</strong></span>
+                <span class="json-stat">キー: <strong>${stats.keys}</strong></span>
+                <span class="json-stat">深さ: <strong>${stats.depth}</strong></span>
+            `;
+        }
+
+        function analyzeJSON(obj, depth = 1) {
+            let stats = { objects: 0, arrays: 0, keys: 0, depth: depth };
+            
+            if (Array.isArray(obj)) {
+                stats.arrays = 1;
+                obj.forEach(item => {
+                    if (typeof item === 'object' && item !== null) {
+                        const sub = analyzeJSON(item, depth + 1);
+                        stats.objects += sub.objects;
+                        stats.arrays += sub.arrays;
+                        stats.keys += sub.keys;
+                        stats.depth = Math.max(stats.depth, sub.depth);
+                    }
+                });
+            } else if (typeof obj === 'object' && obj !== null) {
+                stats.objects = 1;
+                stats.keys = Object.keys(obj).length;
+                Object.values(obj).forEach(value => {
+                    if (typeof value === 'object' && value !== null) {
+                        const sub = analyzeJSON(value, depth + 1);
+                        stats.objects += sub.objects;
+                        stats.arrays += sub.arrays;
+                        stats.keys += sub.keys;
+                        stats.depth = Math.max(stats.depth, sub.depth);
+                    }
+                });
+            }
+            
+            return stats;
+        }
+
+        // 整形
+        function formatJSON() {
+            const input = jsonInput.value.trim();
+            if (!input) {
+                showError('JSONを入力してください');
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                const indent = indentChar.repeat(indentSize);
+                const formatted = JSON.stringify(parsed, null, indent);
+                jsonOutput.textContent = formatted;
+                updateStats(parsed);
+                showSuccess('JSONを整形しました');
+            } catch (e) {
+                showError('構文エラー: ' + e.message);
+                jsonOutput.textContent = '';
+                jsonStats.innerHTML = '';
+            }
+        }
+
+        // 圧縮
+        function minifyJSON() {
+            const input = jsonInput.value.trim();
+            if (!input) {
+                showError('JSONを入力してください');
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                const minified = JSON.stringify(parsed);
+                jsonOutput.textContent = minified;
+                updateStats(parsed);
+                
+                const originalSize = new Blob([input]).size;
+                const minifiedSize = new Blob([minified]).size;
+                const reduction = ((1 - minifiedSize / originalSize) * 100).toFixed(1);
+                
+                showSuccess(`JSONを圧縮しました（${reduction}% 削減）`);
+            } catch (e) {
+                showError('構文エラー: ' + e.message);
+                jsonOutput.textContent = '';
+                jsonStats.innerHTML = '';
+            }
+        }
+
+        // 検証
+        function validateJSON() {
+            const input = jsonInput.value.trim();
+            if (!input) {
+                showError('JSONを入力してください');
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                updateStats(parsed);
+                showSuccess('有効なJSONです');
+            } catch (e) {
+                showError('構文エラー: ' + e.message);
+                jsonStats.innerHTML = '';
+            }
+        }
+
+        // クリア
+        function clearAll() {
+            jsonInput.value = '';
+            jsonOutput.textContent = '';
+            jsonStats.innerHTML = '';
+            hideMessages();
+            jsonInput.focus();
+        }
+
+        // コピー
+        function copyOutput() {
+            const text = jsonOutput.textContent;
+            if (text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('コピーしました');
+                });
+            }
+        }
+
+        // ダウンロード
+        function downloadJSON() {
+            const text = jsonOutput.textContent;
+            if (text) {
+                downloadFile(text, 'formatted.json', 'application/json');
+                showToast('ダウンロードしました');
+            }
+        }
+
+        // サンプル読み込み
+        function loadSample() {
+            jsonInput.value = `{
+  "name": "WebToolBox",
+  "version": "1.0.0",
+  "description": "無料オンラインツール集",
+  "tools": [
+    "文字数カウント",
+    "JSON整形",
+    "QRコード生成",
+    "パスワード生成"
+  ],
+  "features": {
+    "free": true,
+    "noRegistration": true,
+    "privacyFriendly": true
+  },
+  "stats": {
+    "users": 10000,
+    "rating": 4.8
+  }
+}`;
+            hideMessages();
+        }
+
+        // 入力時に自動検証
+        jsonInput.addEventListener('input', debounce(() => {
+            if (jsonInput.value.trim()) {
+                try {
+                    JSON.parse(jsonInput.value);
+                    hideMessages();
+                } catch (e) {
+                    // 入力中はエラー表示しない
+                }
+            }
+        }, 500));
+    </script>
+</body>
+</html>

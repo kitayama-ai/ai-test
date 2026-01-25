@@ -1,0 +1,5 @@
+url,title,has_pixel,has_line,keywords,score,strategy
+https://stock-sun.com/,StockSun株式会社 | 担当者を選べるデジタルマーケティング支援会社,True,True,"コンサル,スクール,セミナー",70,【要検討】広告もLINEもやっています。ステップ配信やAI化による「自動化・工数削減」を提案。
+https://break-marketing-program.jp/,【公式】Break Marketing Program｜WEBマーケティング講座,False,False,"コンサル,スクール,講座,セミナー",30,【育成】まだWeb集客の基礎ができていません。
+https://www.dhw.ac.jp/,デジタルハリウッド大学,False,False,"講座,起業",30,【育成】まだWeb集客の基礎ができていません。
+https://camp.rail-flow.com/,Error,False,False,,0,"Connection Error: HTTPSConnectionPool(host='camp.rail-flow.com', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(""HTTPSConnection(host='camp.rail-flow.com', port=443): Failed to resolve 'camp.rail-flow.com' ([Errno -5] No address associated with hostname)""))"

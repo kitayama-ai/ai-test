@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="画像を高品質のまま軽量化。JPEG・PNG・WebP対応。サーバーに送信せずブラウザ内で処理するため安全。無料の画像圧縮ツール。">
+    <meta name="keywords" content="画像圧縮,画像軽量化,JPEG圧縮,PNG圧縮,WebP変換,オンラインツール">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="画像圧縮 - WebToolBox">
+    <meta property="og:description" content="画像を高品質のまま軽量化。サーバーに送信せず安全に処理できる無料ツール。">
+    <link rel="canonical" href="https://webtoolbox.example.com/tools/image-compressor.html">
+    <title>画像圧縮 | 無料オンライン画像軽量化ツール - WebToolBox</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖼️</text></svg>">
+    <style>
+        .drop-zone {
+            border: 3px dashed var(--gray-300);
+            border-radius: var(--radius-lg);
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--gray-50);
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        .drop-zone-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        .drop-zone-text {
+            font-size: 18px;
+            color: var(--gray-600);
+            margin-bottom: 8px;
+        }
+        .drop-zone-hint {
+            font-size: 14px;
+            color: var(--gray-400);
+        }
+        .image-preview-container {
+            display: none;
+            margin-top: 24px;
+        }
+        .image-preview-container.show {
+            display: block;
+        }
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .preview-card {
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+        .preview-card h3 {
+            font-size: 14px;
+            color: var(--gray-500);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .preview-image {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: contain;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+        }
+        .preview-stats {
+            margin-top: 12px;
+            text-align: center;
+        }
+        .preview-size {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+        .preview-dimensions {
+            font-size: 13px;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+        .compression-result {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 24px;
+            border-radius: var(--radius);
+            text-align: center;
+            margin-top: 20px;
+        }
+        .compression-percent {
+            font-size: 48px;
+            font-weight: 800;
+        }
+        .compression-label {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .quality-preview {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 8px;
+        }
+        .quality-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 60px;
+        }
+        .format-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .format-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--gray-200);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        .format-btn.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+        .batch-list {
+            margin-top: 20px;
+        }
+        .batch-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+        }
+        .batch-item img {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .batch-item-info {
+            flex: 1;
+        }
+        .batch-item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .batch-item-size {
+            font-size: 13px;
+            color: var(--gray-500);
+        }
+        .batch-item-result {
+            text-align: right;
+        }
+        .batch-item-saving {
+            color: var(--secondary);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="tool-page">
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-content">
+            <a href="../" class="logo">
+                <span class="logo-icon">🧰</span>
+                <span>WebToolBox</span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../">ツール一覧</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Tool Header -->
+    <section class="tool-header">
+        <h1>🖼️ 画像圧縮</h1>
+        <p>画像を高品質のまま軽量化</p>
+    </section>
+
+    <!-- Main Content -->
+    <main class="tool-content">
+        <div class="tool-main">
+            <!-- Drop Zone -->
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <div class="drop-zone-icon">📁</div>
+                <div class="drop-zone-text">画像をドラッグ＆ドロップ</div>
+                <div class="drop-zone-hint">またはクリックしてファイルを選択（複数可）</div>
+                <input type="file" id="fileInput" accept="image/*" multiple hidden>
+            </div>
+
+            <!-- Options -->
+            <div class="form-group" style="margin-top: 24px;">
+                <label class="form-label">出力形式</label>
+                <div class="format-select">
+                    <button class="format-btn active" data-format="jpeg" onclick="setFormat('jpeg')">JPEG</button>
+                    <button class="format-btn" data-format="png" onclick="setFormat('png')">PNG</button>
+                    <button class="format-btn" data-format="webp" onclick="setFormat('webp')">WebP</button>
+                </div>
+            </div>
+
+            <div class="form-group" id="qualityGroup">
+                <label class="form-label">品質</label>
+                <div class="quality-preview">
+                    <input type="range" id="qualitySlider" class="range-input" min="10" max="100" value="80" oninput="updateQuality()">
+                    <span class="quality-value" id="qualityValue">80%</span>
+                </div>
+                <p style="font-size: 13px; color: var(--gray-500); margin-top: 8px;">
+                    低い値 = ファイルサイズ小 / 高い値 = 高品質
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">リサイズ（オプション）</label>
+                <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                    <div>
+                        <input type="number" id="maxWidth" class="form-input" placeholder="最大幅" style="width: 120px;">
+                        <span style="color: var(--gray-500);"> × </span>
+                        <input type="number" id="maxHeight" class="form-input" placeholder="最大高さ" style="width: 120px;">
+                        <span style="color: var(--gray-500);"> px</span>
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="keepAspect" checked>
+                        <span>縦横比を維持</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Single Image Preview -->
+            <div class="image-preview-container" id="singlePreview">
+                <div class="preview-grid">
+                    <div class="preview-card">
+                        <h3>圧縮前</h3>
+                        <img id="originalImage" class="preview-image" alt="Original">
+                        <div class="preview-stats">
+                            <div class="preview-size" id="originalSize">-</div>
+                            <div class="preview-dimensions" id="originalDimensions">-</div>
+                        </div>
+                    </div>
+                    <div class="preview-card">
+                        <h3>圧縮後</h3>
+                        <img id="compressedImage" class="preview-image" alt="Compressed">
+                        <div class="preview-stats">
+                            <div class="preview-size" id="compressedSize">-</div>
+                            <div class="preview-dimensions" id="compressedDimensions">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="compression-result" id="compressionResult">
+                    <div class="compression-percent" id="compressionPercent">-</div>
+                    <div class="compression-label">削減</div>
+                </div>
+
+                <div class="btn-group" style="margin-top: 20px; justify-content: center;">
+                    <button class="btn btn-primary" onclick="downloadImage()">
+                        📥 ダウンロード
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetTool()">
+                        🔄 別の画像を圧縮
+                    </button>
+                </div>
+            </div>
+
+            <!-- Batch Preview -->
+            <div class="image-preview-container" id="batchPreview">
+                <h3 style="margin-bottom: 16px;">圧縮結果</h3>
+                <div class="batch-list" id="batchList"></div>
+                <div class="compression-result" id="batchResult">
+                    <div class="compression-percent" id="batchPercent">-</div>
+                    <div class="compression-label">合計削減</div>
+                </div>
+                <div class="btn-group" style="margin-top: 20px; justify-content: center;">
+                    <button class="btn btn-primary" onclick="downloadAllImages()">
+                        📥 すべてダウンロード
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetTool()">
+                        🔄 別の画像を圧縮
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-container horizontal">
+            <span>広告スペース (728x90)</span>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-box">
+            <h2>画像圧縮ツールの特徴</h2>
+            <ul>
+                <li><strong>プライバシー保護</strong> - 画像はサーバーに送信されず、ブラウザ内で処理</li>
+                <li><strong>複数形式対応</strong> - JPEG、PNG、WebPに変換可能</li>
+                <li><strong>品質調整</strong> - 用途に合わせて圧縮率を調整</li>
+                <li><strong>一括処理</strong> - 複数画像を同時に圧縮</li>
+                <li><strong>リサイズ機能</strong> - 画像サイズの縮小も可能</li>
+            </ul>
+        </div>
+
+        <!-- Tips -->
+        <div class="info-box">
+            <h2>形式の選び方</h2>
+            <ul>
+                <li><strong>JPEG</strong> - 写真向け。ファイルサイズが小さく、Web表示に最適</li>
+                <li><strong>PNG</strong> - 透過が必要な場合。ロゴやアイコンに最適</li>
+                <li><strong>WebP</strong> - 最新形式。JPEGより30%程度小さく、透過も対応</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="../">ホーム</a>
+                <a href="../#tools">ツール一覧</a>
+            </div>
+            <p class="copyright">&copy; 2024 WebToolBox. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/common.js"></script>
+    <script>
+        let currentFormat = 'jpeg';
+        let compressedImages = [];
+        let originalFiles = [];
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        // ドラッグ&ドロップ
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        // ファイル処理
+        function handleFiles(files) {
+            const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+            if (imageFiles.length === 0) {
+                showToast('画像ファイルを選択してください', 'error');
+                return;
+            }
+
+            originalFiles = imageFiles;
+            compressedImages = [];
+
+            if (imageFiles.length === 1) {
+                processSingleImage(imageFiles[0]);
+            } else {
+                processBatchImages(imageFiles);
+            }
+        }
+
+        // 単一画像処理
+        async function processSingleImage(file) {
+            const original = await loadImage(file);
+            const compressed = await compressImage(original, file.type);
+
+            document.getElementById('originalImage').src = original.src;
+            document.getElementById('compressedImage').src = compressed.dataUrl;
+
+            document.getElementById('originalSize').textContent = formatFileSize(file.size);
+            document.getElementById('originalDimensions').textContent = `${original.width} × ${original.height} px`;
+
+            document.getElementById('compressedSize').textContent = formatFileSize(compressed.size);
+            document.getElementById('compressedDimensions').textContent = `${compressed.width} × ${compressed.height} px`;
+
+            const reduction = ((1 - compressed.size / file.size) * 100).toFixed(1);
+            document.getElementById('compressionPercent').textContent = reduction + '%';
+            document.getElementById('compressionResult').style.background = 
+                reduction > 0 ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+
+            compressedImages = [{ name: file.name, dataUrl: compressed.dataUrl }];
+
+            document.getElementById('singlePreview').classList.add('show');
+            document.getElementById('batchPreview').classList.remove('show');
+            dropZone.style.display = 'none';
+        }
+
+        // バッチ処理
+        async function processBatchImages(files) {
+            const batchList = document.getElementById('batchList');
+            batchList.innerHTML = '';
+            
+            let totalOriginal = 0;
+            let totalCompressed = 0;
+
+            for (const file of files) {
+                const original = await loadImage(file);
+                const compressed = await compressImage(original, file.type);
+                
+                totalOriginal += file.size;
+                totalCompressed += compressed.size;
+
+                const reduction = ((1 - compressed.size / file.size) * 100).toFixed(1);
+
+                compressedImages.push({ 
+                    name: file.name.replace(/\.[^.]+$/, '') + '.' + currentFormat, 
+                    dataUrl: compressed.dataUrl 
+                });
+
+                batchList.innerHTML += `
+                    <div class="batch-item">
+                        <img src="${compressed.dataUrl}" alt="${file.name}">
+                        <div class="batch-item-info">
+                            <div class="batch-item-name">${file.name}</div>
+                            <div class="batch-item-size">${formatFileSize(file.size)} → ${formatFileSize(compressed.size)}</div>
+                        </div>
+                        <div class="batch-item-result">
+                            <div class="batch-item-saving">-${reduction}%</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const totalReduction = ((1 - totalCompressed / totalOriginal) * 100).toFixed(1);
+            document.getElementById('batchPercent').textContent = totalReduction + '%';
+
+            document.getElementById('batchPreview').classList.add('show');
+            document.getElementById('singlePreview').classList.remove('show');
+            dropZone.style.display = 'none';
+        }
+
+        // 画像読み込み
+        function loadImage(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // 画像圧縮
+        function compressImage(img, originalType) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                let width = img.width;
+                let height = img.height;
+
+                // リサイズ
+                const maxWidth = parseInt(document.getElementById('maxWidth').value) || Infinity;
+                const maxHeight = parseInt(document.getElementById('maxHeight').value) || Infinity;
+                const keepAspect = document.getElementById('keepAspect').checked;
+
+                if (width > maxWidth || height > maxHeight) {
+                    if (keepAspect) {
+                        const ratio = Math.min(maxWidth / width, maxHeight / height);
+                        width = Math.round(width * ratio);
+                        height = Math.round(height * ratio);
+                    } else {
+                        width = Math.min(width, maxWidth);
+                        height = Math.min(height, maxHeight);
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                // 背景を白に（透過画像のJPEG変換用）
+                if (currentFormat === 'jpeg') {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, width, height);
+                }
+
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const quality = parseInt(document.getElementById('qualitySlider').value) / 100;
+                const mimeType = currentFormat === 'jpeg' ? 'image/jpeg' : 
+                               currentFormat === 'png' ? 'image/png' : 'image/webp';
+
+                const dataUrl = canvas.toDataURL(mimeType, quality);
+                const size = Math.round((dataUrl.length - 22) * 3 / 4);
+
+                resolve({ dataUrl, size, width, height });
+            });
+        }
+
+        // 形式設定
+        function setFormat(format) {
+            currentFormat = format;
+            document.querySelectorAll('.format-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-format="${format}"]`).classList.add('active');
+
+            // PNG形式では品質設定は効果なし
+            document.getElementById('qualityGroup').style.opacity = format === 'png' ? '0.5' : '1';
+
+            // 再圧縮
+            if (originalFiles.length > 0) {
+                handleFiles(originalFiles);
+            }
+        }
+
+        // 品質更新
+        function updateQuality() {
+            const value = document.getElementById('qualitySlider').value;
+            document.getElementById('qualityValue').textContent = value + '%';
+
+            // デバウンスで再圧縮
+            clearTimeout(window.qualityTimeout);
+            window.qualityTimeout = setTimeout(() => {
+                if (originalFiles.length > 0) {
+                    handleFiles(originalFiles);
+                }
+            }, 300);
+        }
+
+        // ダウンロード
+        function downloadImage() {
+            if (compressedImages.length > 0) {
+                const img = compressedImages[0];
+                const link = document.createElement('a');
+                link.download = img.name.replace(/\.[^.]+$/, '') + '.' + currentFormat;
+                link.href = img.dataUrl;
+                link.click();
+                showToast('ダウンロードしました');
+            }
+        }
+
+        // 全てダウンロード
+        function downloadAllImages() {
+            compressedImages.forEach((img, index) => {
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.download = img.name;
+                    link.href = img.dataUrl;
+                    link.click();
+                }, index * 200);
+            });
+            showToast(`${compressedImages.length}個の画像をダウンロード`);
+        }
+
+        // リセット
+        function resetTool() {
+            originalFiles = [];
+            compressedImages = [];
+            fileInput.value = '';
+            document.getElementById('singlePreview').classList.remove('show');
+            document.getElementById('batchPreview').classList.remove('show');
+            dropZone.style.display = 'block';
+        }
+
+        // ファイルサイズフォーマット
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+    </script>
+</body>
+</html>

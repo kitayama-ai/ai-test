@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="無料のQRコード生成ツール。URL・テキスト・Wi-Fi情報からQRコードを即座に作成。高画質PNG/SVGでダウンロード可能。">
+    <meta name="keywords" content="QRコード生成,QRコード作成,QRコードメーカー,無料QRコード,オンラインツール">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="QRコード生成 - WebToolBox">
+    <meta property="og:description" content="URL・テキストからQRコードを即座に生成。高画質でダウンロード可能な無料ツール。">
+    <link rel="canonical" href="https://webtoolbox.example.com/tools/qr-generator.html">
+    <title>QRコード生成 | 無料オンラインQRコードメーカー - WebToolBox</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        .qr-preview {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 24px;
+            min-height: 280px;
+        }
+        .qr-preview canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        .qr-placeholder {
+            text-align: center;
+            color: var(--gray-400);
+        }
+        .qr-placeholder span {
+            font-size: 64px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .color-picker-group {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .color-picker-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .color-picker-item input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 0;
+        }
+        .type-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .type-tab {
+            padding: 10px 20px;
+            border: 2px solid var(--gray-200);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        .type-tab.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+        .type-tab:hover {
+            border-color: var(--primary-light);
+        }
+        .wifi-fields {
+            display: none;
+        }
+        .wifi-fields.show {
+            display: block;
+        }
+    </style>
+</head>
+<body class="tool-page">
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-content">
+            <a href="../" class="logo">
+                <span class="logo-icon">🧰</span>
+                <span>WebToolBox</span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../">ツール一覧</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Tool Header -->
+    <section class="tool-header">
+        <h1>📱 QRコード生成</h1>
+        <p>URL・テキストからQRコードを即座に作成</p>
+    </section>
+
+    <!-- Main Content -->
+    <main class="tool-content">
+        <div class="tool-main">
+            <!-- Type Tabs -->
+            <div class="type-tabs">
+                <button class="type-tab active" data-type="text" onclick="setType('text')">テキスト/URL</button>
+                <button class="type-tab" data-type="wifi" onclick="setType('wifi')">Wi-Fi</button>
+                <button class="type-tab" data-type="email" onclick="setType('email')">メール</button>
+                <button class="type-tab" data-type="tel" onclick="setType('tel')">電話番号</button>
+            </div>
+
+            <!-- Text/URL Input -->
+            <div class="form-group" id="textInput">
+                <label class="form-label" for="qrText">テキストまたはURLを入力</label>
+                <textarea 
+                    id="qrText" 
+                    class="form-textarea" 
+                    placeholder="https://example.com または任意のテキスト"
+                    style="min-height: 100px;"
+                    oninput="generateQR()"
+                ></textarea>
+            </div>
+
+            <!-- Wi-Fi Input -->
+            <div class="wifi-fields" id="wifiInput">
+                <div class="form-group">
+                    <label class="form-label" for="wifiSSID">ネットワーク名 (SSID)</label>
+                    <input type="text" id="wifiSSID" class="form-input" placeholder="MyWiFi" oninput="generateQR()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="wifiPassword">パスワード</label>
+                    <input type="text" id="wifiPassword" class="form-input" placeholder="password123" oninput="generateQR()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">セキュリティ</label>
+                    <select id="wifiSecurity" class="form-select" onchange="generateQR()">
+                        <option value="WPA">WPA/WPA2</option>
+                        <option value="WEP">WEP</option>
+                        <option value="nopass">なし</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Email Input -->
+            <div class="wifi-fields" id="emailInput">
+                <div class="form-group">
+                    <label class="form-label" for="emailTo">メールアドレス</label>
+                    <input type="email" id="emailTo" class="form-input" placeholder="example@email.com" oninput="generateQR()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="emailSubject">件名</label>
+                    <input type="text" id="emailSubject" class="form-input" placeholder="お問い合わせ" oninput="generateQR()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="emailBody">本文</label>
+                    <textarea id="emailBody" class="form-textarea" placeholder="本文を入力..." style="min-height: 80px;" oninput="generateQR()"></textarea>
+                </div>
+            </div>
+
+            <!-- Tel Input -->
+            <div class="wifi-fields" id="telInput">
+                <div class="form-group">
+                    <label class="form-label" for="telNumber">電話番号</label>
+                    <input type="tel" id="telNumber" class="form-input" placeholder="090-1234-5678" oninput="generateQR()">
+                </div>
+            </div>
+
+            <!-- Options -->
+            <div class="form-group">
+                <label class="form-label">サイズ</label>
+                <div class="range-container">
+                    <input type="range" id="qrSize" class="range-input" min="128" max="512" value="256" step="32" oninput="updateSize()">
+                    <span class="range-value" id="sizeValue">256px</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">カラー</label>
+                <div class="color-picker-group">
+                    <div class="color-picker-item">
+                        <input type="color" id="darkColor" value="#000000" onchange="generateQR()">
+                        <span>QRコード色</span>
+                    </div>
+                    <div class="color-picker-item">
+                        <input type="color" id="lightColor" value="#ffffff" onchange="generateQR()">
+                        <span>背景色</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Preview -->
+            <div class="form-group">
+                <label class="form-label">プレビュー</label>
+                <div class="qr-preview" id="qrPreview">
+                    <div class="qr-placeholder">
+                        <span>📱</span>
+                        <p>テキストを入力するとQRコードが生成されます</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="downloadPNG()">
+                    📥 PNGダウンロード
+                </button>
+                <button class="btn btn-secondary" onclick="downloadSVG()">
+                    📥 SVGダウンロード
+                </button>
+                <button class="btn btn-secondary" onclick="clearQR()">
+                    🗑️ クリア
+                </button>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-container horizontal">
+            <span>広告スペース (728x90)</span>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-box">
+            <h2>QRコード生成ツールの使い方</h2>
+            <p>このツールは、様々なデータからQRコードを生成できます。</p>
+            <ul>
+                <li><strong>テキスト/URL</strong> - ウェブサイトのURLや任意のテキスト</li>
+                <li><strong>Wi-Fi</strong> - Wi-Fi接続情報（スマホで読み取ると自動接続）</li>
+                <li><strong>メール</strong> - メールアドレスと定型文</li>
+                <li><strong>電話番号</strong> - タップで発信できる電話番号</li>
+            </ul>
+        </div>
+
+        <!-- Use Cases -->
+        <div class="info-box">
+            <h2>QRコードの活用例</h2>
+            <ul>
+                <li>名刺にウェブサイトや連絡先を掲載</li>
+                <li>チラシやポスターにURLを掲載</li>
+                <li>店舗のWi-Fi情報を共有</li>
+                <li>イベントの受付システム</li>
+                <li>商品パッケージに詳細情報へのリンク</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="../">ホーム</a>
+                <a href="../#tools">ツール一覧</a>
+            </div>
+            <p class="copyright">&copy; 2024 WebToolBox. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/common.js"></script>
+    <script>
+        let currentType = 'text';
+        let qrCanvas = null;
+
+        // タイプ切り替え
+        function setType(type) {
+            currentType = type;
+            document.querySelectorAll('.type-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`[data-type="${type}"]`).classList.add('active');
+
+            // フィールド表示切り替え
+            document.getElementById('textInput').style.display = type === 'text' ? 'block' : 'none';
+            document.getElementById('wifiInput').classList.toggle('show', type === 'wifi');
+            document.getElementById('emailInput').classList.toggle('show', type === 'email');
+            document.getElementById('telInput').classList.toggle('show', type === 'tel');
+
+            generateQR();
+        }
+
+        // サイズ更新
+        function updateSize() {
+            const size = document.getElementById('qrSize').value;
+            document.getElementById('sizeValue').textContent = size + 'px';
+            generateQR();
+        }
+
+        // データ取得
+        function getData() {
+            switch (currentType) {
+                case 'text':
+                    return document.getElementById('qrText').value.trim();
+                case 'wifi':
+                    const ssid = document.getElementById('wifiSSID').value.trim();
+                    const password = document.getElementById('wifiPassword').value;
+                    const security = document.getElementById('wifiSecurity').value;
+                    if (!ssid) return '';
+                    return `WIFI:T:${security};S:${ssid};P:${password};;`;
+                case 'email':
+                    const to = document.getElementById('emailTo').value.trim();
+                    const subject = document.getElementById('emailSubject').value;
+                    const body = document.getElementById('emailBody').value;
+                    if (!to) return '';
+                    let mailto = `mailto:${to}`;
+                    const params = [];
+                    if (subject) params.push(`subject=${encodeURIComponent(subject)}`);
+                    if (body) params.push(`body=${encodeURIComponent(body)}`);
+                    if (params.length) mailto += '?' + params.join('&');
+                    return mailto;
+                case 'tel':
+                    const tel = document.getElementById('telNumber').value.trim().replace(/[-\s]/g, '');
+                    if (!tel) return '';
+                    return `tel:${tel}`;
+                default:
+                    return '';
+            }
+        }
+
+        // QRコード生成
+        function generateQR() {
+            const data = getData();
+            const preview = document.getElementById('qrPreview');
+
+            if (!data) {
+                preview.innerHTML = `
+                    <div class="qr-placeholder">
+                        <span>📱</span>
+                        <p>テキストを入力するとQRコードが生成されます</p>
+                    </div>
+                `;
+                qrCanvas = null;
+                return;
+            }
+
+            const size = parseInt(document.getElementById('qrSize').value);
+            const darkColor = document.getElementById('darkColor').value;
+            const lightColor = document.getElementById('lightColor').value;
+
+            preview.innerHTML = '<canvas id="qrCanvas"></canvas>';
+            const canvas = document.getElementById('qrCanvas');
+
+            QRCode.toCanvas(canvas, data, {
+                width: size,
+                margin: 2,
+                color: {
+                    dark: darkColor,
+                    light: lightColor
+                },
+                errorCorrectionLevel: 'M'
+            }, function(error) {
+                if (error) {
+                    preview.innerHTML = `
+                        <div class="qr-placeholder" style="color: var(--danger);">
+                            <span>⚠️</span>
+                            <p>QRコードの生成に失敗しました</p>
+                        </div>
+                    `;
+                    qrCanvas = null;
+                } else {
+                    qrCanvas = canvas;
+                }
+            });
+        }
+
+        // PNGダウンロード
+        function downloadPNG() {
+            if (!qrCanvas) {
+                showToast('先にQRコードを生成してください', 'error');
+                return;
+            }
+            const link = document.createElement('a');
+            link.download = 'qrcode.png';
+            link.href = qrCanvas.toDataURL('image/png');
+            link.click();
+            showToast('PNGをダウンロードしました');
+        }
+
+        // SVGダウンロード
+        function downloadSVG() {
+            const data = getData();
+            if (!data) {
+                showToast('先にQRコードを生成してください', 'error');
+                return;
+            }
+
+            const size = parseInt(document.getElementById('qrSize').value);
+            const darkColor = document.getElementById('darkColor').value;
+            const lightColor = document.getElementById('lightColor').value;
+
+            QRCode.toString(data, {
+                type: 'svg',
+                width: size,
+                margin: 2,
+                color: {
+                    dark: darkColor,
+                    light: lightColor
+                },
+                errorCorrectionLevel: 'M'
+            }, function(error, svg) {
+                if (error) {
+                    showToast('SVGの生成に失敗しました', 'error');
+                    return;
+                }
+                downloadFile(svg, 'qrcode.svg', 'image/svg+xml');
+                showToast('SVGをダウンロードしました');
+            });
+        }
+
+        // クリア
+        function clearQR() {
+            document.getElementById('qrText').value = '';
+            document.getElementById('wifiSSID').value = '';
+            document.getElementById('wifiPassword').value = '';
+            document.getElementById('emailTo').value = '';
+            document.getElementById('emailSubject').value = '';
+            document.getElementById('emailBody').value = '';
+            document.getElementById('telNumber').value = '';
+            generateQR();
+        }
+
+        // 初期化
+        generateQR();
+    </script>
+</body>
+</html>

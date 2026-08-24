@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="無料の文字数カウントツール。文字数・単語数・行数・段落数をリアルタイムでカウント。スペース除外やTwitter文字数制限にも対応。">
+    <meta name="keywords" content="文字数カウント,文字数カウンター,単語数カウント,行数カウント,オンラインツール,無料">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="文字数カウンター - WebToolBox">
+    <meta property="og:description" content="文字数・単語数・行数をリアルタイムでカウント。原稿の文字数チェックに最適な無料ツール。">
+    <link rel="canonical" href="https://webtoolbox.example.com/tools/character-counter.html">
+    <title>文字数カウンター | 無料オンライン文字数カウントツール - WebToolBox</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+</head>
+<body class="tool-page">
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-content">
+            <a href="../" class="logo">
+                <span class="logo-icon">🧰</span>
+                <span>WebToolBox</span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../">ツール一覧</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Tool Header -->
+    <section class="tool-header">
+        <h1>📝 文字数カウンター</h1>
+        <p>文字数・単語数・行数をリアルタイムでカウント</p>
+    </section>
+
+    <!-- Main Content -->
+    <main class="tool-content">
+        <div class="tool-main">
+            <!-- Input Area -->
+            <div class="form-group">
+                <label class="form-label" for="inputText">テキストを入力</label>
+                <textarea 
+                    id="inputText" 
+                    class="form-textarea" 
+                    placeholder="ここにテキストを入力またはペーストしてください..."
+                    style="min-height: 250px;"
+                ></textarea>
+            </div>
+
+            <!-- Options -->
+            <div class="form-group" style="display: flex; gap: 24px; flex-wrap: wrap;">
+                <label class="toggle-group">
+                    <span class="toggle" id="toggleSpaces" onclick="toggleOption('spaces')"></span>
+                    <span>スペースを除外</span>
+                </label>
+                <label class="toggle-group">
+                    <span class="toggle" id="toggleNewlines" onclick="toggleOption('newlines')"></span>
+                    <span>改行を除外</span>
+                </label>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="charCount">0</div>
+                    <div class="stat-label">文字数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="charCountNoSpace">0</div>
+                    <div class="stat-label">文字数（空白除く）</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="wordCount">0</div>
+                    <div class="stat-label">単語数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lineCount">0</div>
+                    <div class="stat-label">行数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="paragraphCount">0</div>
+                    <div class="stat-label">段落数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="byteCount">0</div>
+                    <div class="stat-label">バイト数</div>
+                </div>
+            </div>
+
+            <!-- Twitter Counter -->
+            <div class="result-box" style="margin-top: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <div class="result-label">Twitter (X) 文字数</div>
+                        <div style="font-size: 24px; font-weight: 700;">
+                            <span id="twitterCount">0</span> / 280
+                        </div>
+                    </div>
+                    <div style="width: 200px; background: var(--gray-200); border-radius: 10px; height: 10px; overflow: hidden;">
+                        <div id="twitterBar" style="height: 100%; background: var(--primary); border-radius: 10px; transition: all 0.3s; width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-group" style="margin-top: 24px;">
+                <button class="btn btn-secondary" onclick="clearText()">
+                    クリア
+                </button>
+                <button class="btn btn-primary" onclick="copyText()">
+                    テキストをコピー
+                </button>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-container horizontal">
+            <span>広告スペース (728x90)</span>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-box">
+            <h2>文字数カウンターの使い方</h2>
+            <p>このツールは、入力されたテキストの文字数をリアルタイムでカウントします。</p>
+            <ul>
+                <li><strong>文字数</strong> - 全ての文字（スペース・改行含む）をカウント</li>
+                <li><strong>文字数（空白除く）</strong> - スペースと改行を除いた文字数</li>
+                <li><strong>単語数</strong> - スペースで区切られた単語の数（日本語は文字数と近似）</li>
+                <li><strong>行数</strong> - 改行で区切られた行の数</li>
+                <li><strong>段落数</strong> - 空行で区切られた段落の数</li>
+                <li><strong>バイト数</strong> - UTF-8エンコードでのバイト数</li>
+            </ul>
+        </div>
+
+        <!-- Use Cases -->
+        <div class="info-box">
+            <h2>こんな時に便利</h2>
+            <ul>
+                <li>ブログ記事の文字数チェック</li>
+                <li>SNS投稿の文字数制限確認</li>
+                <li>レポートや論文の文字数カウント</li>
+                <li>SEO対策でのメタディスクリプション文字数確認</li>
+                <li>翻訳料金の見積もり（文字数ベース）</li>
+            </ul>
+        </div>
+
+        <!-- Related Tools -->
+        <div class="info-box">
+            <h2>関連ツール</h2>
+            <div class="tool-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                <a href="text-converter.html" class="tool-card" style="padding: 16px;">
+                    <span style="font-size: 24px;">🔄</span>
+                    <h3 style="font-size: 16px; margin: 8px 0 4px;">テキスト変換</h3>
+                </a>
+                <a href="json-formatter.html" class="tool-card" style="padding: 16px;">
+                    <span style="font-size: 24px;">📋</span>
+                    <h3 style="font-size: 16px; margin: 8px 0 4px;">JSON整形</h3>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="../">ホーム</a>
+                <a href="../#tools">ツール一覧</a>
+            </div>
+            <p class="copyright">&copy; 2024 WebToolBox. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/common.js"></script>
+    <script>
+        const inputText = document.getElementById('inputText');
+        const options = {
+            spaces: false,
+            newlines: false
+        };
+
+        // カウント処理
+        function countCharacters() {
+            let text = inputText.value;
+            let processedText = text;
+
+            if (options.spaces) {
+                processedText = processedText.replace(/[ 　\t]/g, '');
+            }
+            if (options.newlines) {
+                processedText = processedText.replace(/\n/g, '');
+            }
+
+            // 基本カウント
+            const charCount = processedText.length;
+            const charCountNoSpace = text.replace(/[\s]/g, '').length;
+            
+            // 単語数（英語はスペース区切り、日本語は概算）
+            const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+            const wordCount = text.trim() === '' ? 0 : words.length;
+            
+            // 行数
+            const lines = text.split('\n');
+            const lineCount = text === '' ? 0 : lines.length;
+            
+            // 段落数
+            const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+            const paragraphCount = text.trim() === '' ? 0 : paragraphs.length;
+            
+            // バイト数（UTF-8）
+            const byteCount = new Blob([text]).size;
+            
+            // Twitter文字数（簡易版：URLは23文字換算など省略）
+            const twitterCount = text.length;
+            const twitterPercent = Math.min((twitterCount / 280) * 100, 100);
+
+            // 更新
+            document.getElementById('charCount').textContent = formatNumber(charCount);
+            document.getElementById('charCountNoSpace').textContent = formatNumber(charCountNoSpace);
+            document.getElementById('wordCount').textContent = formatNumber(wordCount);
+            document.getElementById('lineCount').textContent = formatNumber(lineCount);
+            document.getElementById('paragraphCount').textContent = formatNumber(paragraphCount);
+            document.getElementById('byteCount').textContent = formatNumber(byteCount);
+            document.getElementById('twitterCount').textContent = twitterCount;
+            
+            const twitterBar = document.getElementById('twitterBar');
+            twitterBar.style.width = twitterPercent + '%';
+            twitterBar.style.background = twitterCount > 280 ? 'var(--danger)' : 
+                                         twitterCount > 250 ? 'var(--accent)' : 'var(--primary)';
+        }
+
+        // オプション切り替え
+        function toggleOption(option) {
+            options[option] = !options[option];
+            const toggle = document.getElementById('toggle' + option.charAt(0).toUpperCase() + option.slice(1));
+            toggle.classList.toggle('active', options[option]);
+            countCharacters();
+        }
+
+        // クリア
+        function clearText() {
+            inputText.value = '';
+            countCharacters();
+            inputText.focus();
+        }
+
+        // コピー
+        function copyText() {
+            if (inputText.value) {
+                navigator.clipboard.writeText(inputText.value).then(() => {
+                    showToast('テキストをコピーしました');
+                });
+            }
+        }
+
+        // イベントリスナー
+        inputText.addEventListener('input', debounce(countCharacters, 50));
+
+        // 初期カウント
+        countCharacters();
+    </script>
+</body>
+</html>

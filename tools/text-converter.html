@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="テキストの大文字/小文字変換、全角/半角変換、ひらがな/カタカナ変換などを一括処理。データ整形に便利な無料テキスト変換ツール。">
+    <meta name="keywords" content="テキスト変換,全角半角変換,大文字小文字変換,ひらがなカタカナ変換,オンラインツール">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="テキスト変換 - WebToolBox">
+    <meta property="og:description" content="大文字/小文字、全角/半角、ひらがな/カタカナ変換など多彩な変換機能を提供する無料ツール。">
+    <link rel="canonical" href="https://webtoolbox.example.com/tools/text-converter.html">
+    <title>テキスト変換 | 全角半角・大文字小文字変換ツール - WebToolBox</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔄</text></svg>">
+    <style>
+        .convert-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .convert-btn {
+            padding: 16px;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: left;
+        }
+        .convert-btn:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        .convert-btn-title {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 4px;
+        }
+        .convert-btn-desc {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+        .textarea-container {
+            position: relative;
+        }
+        .char-count {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            font-size: 13px;
+            color: var(--gray-400);
+            background: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .category-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-600);
+            margin: 20px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        .swap-icon {
+            display: flex;
+            justify-content: center;
+            margin: 16px 0;
+        }
+        .swap-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .swap-btn:hover {
+            transform: rotate(180deg);
+            background: var(--primary-dark);
+        }
+        .history-section {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--gray-200);
+        }
+        .history-item {
+            background: var(--gray-50);
+            padding: 16px;
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+        }
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .history-item-type {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .history-item-time {
+            font-size: 12px;
+            color: var(--gray-400);
+        }
+        .history-item-text {
+            font-size: 14px;
+            color: var(--gray-600);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="tool-page">
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-content">
+            <a href="../" class="logo">
+                <span class="logo-icon">🧰</span>
+                <span>WebToolBox</span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../">ツール一覧</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Tool Header -->
+    <section class="tool-header">
+        <h1>🔄 テキスト変換</h1>
+        <p>大文字/小文字、全角/半角、ひらがな/カタカナ変換</p>
+    </section>
+
+    <!-- Main Content -->
+    <main class="tool-content">
+        <div class="tool-main">
+            <!-- Input -->
+            <div class="form-group">
+                <label class="form-label">変換前のテキスト</label>
+                <div class="textarea-container">
+                    <textarea 
+                        id="inputText" 
+                        class="form-textarea" 
+                        placeholder="変換したいテキストを入力..."
+                        style="min-height: 150px;"
+                        oninput="updateCharCount('input')"
+                    ></textarea>
+                    <span class="char-count" id="inputCount">0文字</span>
+                </div>
+            </div>
+
+            <!-- Convert Buttons -->
+            <div class="category-label">英字変換</div>
+            <div class="convert-buttons">
+                <button class="convert-btn" onclick="convert('uppercase')">
+                    <div class="convert-btn-title">大文字に変換</div>
+                    <div class="convert-btn-desc">abc → ABC</div>
+                </button>
+                <button class="convert-btn" onclick="convert('lowercase')">
+                    <div class="convert-btn-title">小文字に変換</div>
+                    <div class="convert-btn-desc">ABC → abc</div>
+                </button>
+                <button class="convert-btn" onclick="convert('capitalize')">
+                    <div class="convert-btn-title">先頭を大文字に</div>
+                    <div class="convert-btn-desc">hello world → Hello World</div>
+                </button>
+                <button class="convert-btn" onclick="convert('sentence')">
+                    <div class="convert-btn-title">文頭を大文字に</div>
+                    <div class="convert-btn-desc">hello. world → Hello. World</div>
+                </button>
+            </div>
+
+            <div class="category-label">全角/半角変換</div>
+            <div class="convert-buttons">
+                <button class="convert-btn" onclick="convert('toFullWidth')">
+                    <div class="convert-btn-title">全角に変換</div>
+                    <div class="convert-btn-desc">ABC123 → ＡＢＣ１２３</div>
+                </button>
+                <button class="convert-btn" onclick="convert('toHalfWidth')">
+                    <div class="convert-btn-title">半角に変換</div>
+                    <div class="convert-btn-desc">ＡＢＣ１２３ → ABC123</div>
+                </button>
+                <button class="convert-btn" onclick="convert('toFullWidthKana')">
+                    <div class="convert-btn-title">カナを全角に</div>
+                    <div class="convert-btn-desc">ｶﾀｶﾅ → カタカナ</div>
+                </button>
+                <button class="convert-btn" onclick="convert('toHalfWidthKana')">
+                    <div class="convert-btn-title">カナを半角に</div>
+                    <div class="convert-btn-desc">カタカナ → ｶﾀｶﾅ</div>
+                </button>
+            </div>
+
+            <div class="category-label">ひらがな/カタカナ変換</div>
+            <div class="convert-buttons">
+                <button class="convert-btn" onclick="convert('toHiragana')">
+                    <div class="convert-btn-title">ひらがなに変換</div>
+                    <div class="convert-btn-desc">カタカナ → かたかな</div>
+                </button>
+                <button class="convert-btn" onclick="convert('toKatakana')">
+                    <div class="convert-btn-title">カタカナに変換</div>
+                    <div class="convert-btn-desc">ひらがな → ヒラガナ</div>
+                </button>
+            </div>
+
+            <div class="category-label">その他の変換</div>
+            <div class="convert-buttons">
+                <button class="convert-btn" onclick="convert('removeSpaces')">
+                    <div class="convert-btn-title">空白を削除</div>
+                    <div class="convert-btn-desc">a b c → abc</div>
+                </button>
+                <button class="convert-btn" onclick="convert('removeLineBreaks')">
+                    <div class="convert-btn-title">改行を削除</div>
+                    <div class="convert-btn-desc">改行を削除して1行に</div>
+                </button>
+                <button class="convert-btn" onclick="convert('trimLines')">
+                    <div class="convert-btn-title">各行の前後空白削除</div>
+                    <div class="convert-btn-desc">各行をトリム</div>
+                </button>
+                <button class="convert-btn" onclick="convert('removeEmptyLines')">
+                    <div class="convert-btn-title">空行を削除</div>
+                    <div class="convert-btn-desc">空の行を削除</div>
+                </button>
+                <button class="convert-btn" onclick="convert('reverseText')">
+                    <div class="convert-btn-title">テキストを反転</div>
+                    <div class="convert-btn-desc">ABC → CBA</div>
+                </button>
+                <button class="convert-btn" onclick="convert('sortLines')">
+                    <div class="convert-btn-title">行をソート</div>
+                    <div class="convert-btn-desc">各行をアルファベット順に</div>
+                </button>
+                <button class="convert-btn" onclick="convert('uniqueLines')">
+                    <div class="convert-btn-title">重複行を削除</div>
+                    <div class="convert-btn-desc">同じ行を1つにまとめる</div>
+                </button>
+                <button class="convert-btn" onclick="convert('addLineNumbers')">
+                    <div class="convert-btn-title">行番号を追加</div>
+                    <div class="convert-btn-desc">各行の先頭に番号を追加</div>
+                </button>
+            </div>
+
+            <!-- Swap Button -->
+            <div class="swap-icon">
+                <button class="swap-btn" onclick="swapTexts()" title="入力と出力を入れ替え">↕</button>
+            </div>
+
+            <!-- Output -->
+            <div class="form-group">
+                <label class="form-label">変換後のテキスト</label>
+                <div class="textarea-container">
+                    <textarea 
+                        id="outputText" 
+                        class="form-textarea" 
+                        placeholder="変換結果がここに表示されます..."
+                        style="min-height: 150px;"
+                        readonly
+                    ></textarea>
+                    <span class="char-count" id="outputCount">0文字</span>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="copyOutput()">
+                    📋 結果をコピー
+                </button>
+                <button class="btn btn-secondary" onclick="clearAll()">
+                    🗑️ クリア
+                </button>
+            </div>
+
+            <!-- History -->
+            <div class="history-section">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label class="form-label" style="margin: 0;">変換履歴</label>
+                    <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;" onclick="clearHistory()">
+                        履歴をクリア
+                    </button>
+                </div>
+                <div id="historyList" style="margin-top: 16px;">
+                    <p style="color: var(--gray-500); text-align: center; padding: 20px;">履歴はありません</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-container horizontal">
+            <span>広告スペース (728x90)</span>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-box">
+            <h2>テキスト変換ツールの使い方</h2>
+            <p>このツールは、様々なテキスト変換を一括で行えます。</p>
+            <ul>
+                <li><strong>英字変換</strong> - 大文字/小文字の変換</li>
+                <li><strong>全角/半角変換</strong> - 英数字やカタカナの全角/半角変換</li>
+                <li><strong>ひらがな/カタカナ変換</strong> - 日本語の文字種変換</li>
+                <li><strong>その他</strong> - 空白削除、行ソート、重複削除など</li>
+            </ul>
+        </div>
+
+        <!-- Use Cases -->
+        <div class="info-box">
+            <h2>こんな時に便利</h2>
+            <ul>
+                <li>データのクリーニング・正規化</li>
+                <li>住所や名前の表記統一</li>
+                <li>CSVデータの整形</li>
+                <li>コードのフォーマット調整</li>
+                <li>SNS投稿用のテキスト編集</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="../">ホーム</a>
+                <a href="../#tools">ツール一覧</a>
+            </div>
+            <p class="copyright">&copy; 2024 WebToolBox. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/common.js"></script>
+    <script>
+        let history = loadFromStorage('textConvertHistory', []);
+
+        // 変換関数
+        const converters = {
+            uppercase: (text) => text.toUpperCase(),
+            lowercase: (text) => text.toLowerCase(),
+            capitalize: (text) => text.replace(/\b\w/g, c => c.toUpperCase()),
+            sentence: (text) => text.replace(/(^\s*\w|[.!?]\s*\w)/g, c => c.toUpperCase()),
+            
+            toFullWidth: (text) => text.replace(/[A-Za-z0-9]/g, s => 
+                String.fromCharCode(s.charCodeAt(0) + 0xFEE0)
+            ),
+            toHalfWidth: (text) => text.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => 
+                String.fromCharCode(s.charCodeAt(0) - 0xFEE0)
+            ),
+            toFullWidthKana: (text) => {
+                const kanaMap = {
+                    'ｱ':'ア','ｲ':'イ','ｳ':'ウ','ｴ':'エ','ｵ':'オ',
+                    'ｶ':'カ','ｷ':'キ','ｸ':'ク','ｹ':'ケ','ｺ':'コ',
+                    'ｻ':'サ','ｼ':'シ','ｽ':'ス','ｾ':'セ','ｿ':'ソ',
+                    'ﾀ':'タ','ﾁ':'チ','ﾂ':'ツ','ﾃ':'テ','ﾄ':'ト',
+                    'ﾅ':'ナ','ﾆ':'ニ','ﾇ':'ヌ','ﾈ':'ネ','ﾉ':'ノ',
+                    'ﾊ':'ハ','ﾋ':'ヒ','ﾌ':'フ','ﾍ':'ヘ','ﾎ':'ホ',
+                    'ﾏ':'マ','ﾐ':'ミ','ﾑ':'ム','ﾒ':'メ','ﾓ':'モ',
+                    'ﾔ':'ヤ','ﾕ':'ユ','ﾖ':'ヨ',
+                    'ﾗ':'ラ','ﾘ':'リ','ﾙ':'ル','ﾚ':'レ','ﾛ':'ロ',
+                    'ﾜ':'ワ','ｦ':'ヲ','ﾝ':'ン',
+                    'ｧ':'ァ','ｨ':'ィ','ｩ':'ゥ','ｪ':'ェ','ｫ':'ォ',
+                    'ｬ':'ャ','ｭ':'ュ','ｮ':'ョ','ｯ':'ッ',
+                    'ﾞ':'゛','ﾟ':'゜','ｰ':'ー'
+                };
+                return text.replace(/[ｦ-ﾟ]/g, s => kanaMap[s] || s);
+            },
+            toHalfWidthKana: (text) => {
+                const kanaMap = {
+                    'ア':'ｱ','イ':'ｲ','ウ':'ｳ','エ':'ｴ','オ':'ｵ',
+                    'カ':'ｶ','キ':'ｷ','ク':'ｸ','ケ':'ｹ','コ':'ｺ',
+                    'サ':'ｻ','シ':'ｼ','ス':'ｽ','セ':'ｾ','ソ':'ｿ',
+                    'タ':'ﾀ','チ':'ﾁ','ツ':'ﾂ','テ':'ﾃ','ト':'ﾄ',
+                    'ナ':'ﾅ','ニ':'ﾆ','ヌ':'ﾇ','ネ':'ﾈ','ノ':'ﾉ',
+                    'ハ':'ﾊ','ヒ':'ﾋ','フ':'ﾌ','ヘ':'ﾍ','ホ':'ﾎ',
+                    'マ':'ﾏ','ミ':'ﾐ','ム':'ﾑ','メ':'ﾒ','モ':'ﾓ',
+                    'ヤ':'ﾔ','ユ':'ﾕ','ヨ':'ﾖ',
+                    'ラ':'ﾗ','リ':'ﾘ','ル':'ﾙ','レ':'ﾚ','ロ':'ﾛ',
+                    'ワ':'ﾜ','ヲ':'ｦ','ン':'ﾝ',
+                    'ァ':'ｧ','ィ':'ｨ','ゥ':'ｩ','ェ':'ｪ','ォ':'ｫ',
+                    'ャ':'ｬ','ュ':'ｭ','ョ':'ｮ','ッ':'ｯ',
+                    '゛':'ﾞ','゜':'ﾟ','ー':'ｰ'
+                };
+                return text.replace(/[ァ-ヴー゛゜]/g, s => kanaMap[s] || s);
+            },
+            
+            toHiragana: (text) => text.replace(/[\u30A1-\u30F6]/g, s => 
+                String.fromCharCode(s.charCodeAt(0) - 0x60)
+            ),
+            toKatakana: (text) => text.replace(/[\u3041-\u3096]/g, s => 
+                String.fromCharCode(s.charCodeAt(0) + 0x60)
+            ),
+            
+            removeSpaces: (text) => text.replace(/[\s　]/g, ''),
+            removeLineBreaks: (text) => text.replace(/\n/g, ''),
+            trimLines: (text) => text.split('\n').map(line => line.trim()).join('\n'),
+            removeEmptyLines: (text) => text.split('\n').filter(line => line.trim()).join('\n'),
+            reverseText: (text) => text.split('').reverse().join(''),
+            sortLines: (text) => text.split('\n').sort().join('\n'),
+            uniqueLines: (text) => [...new Set(text.split('\n'))].join('\n'),
+            addLineNumbers: (text) => text.split('\n').map((line, i) => `${i + 1}. ${line}`).join('\n')
+        };
+
+        const converterNames = {
+            uppercase: '大文字に変換',
+            lowercase: '小文字に変換',
+            capitalize: '先頭を大文字に',
+            sentence: '文頭を大文字に',
+            toFullWidth: '全角に変換',
+            toHalfWidth: '半角に変換',
+            toFullWidthKana: 'カナを全角に',
+            toHalfWidthKana: 'カナを半角に',
+            toHiragana: 'ひらがなに変換',
+            toKatakana: 'カタカナに変換',
+            removeSpaces: '空白を削除',
+            removeLineBreaks: '改行を削除',
+            trimLines: '各行の前後空白削除',
+            removeEmptyLines: '空行を削除',
+            reverseText: 'テキストを反転',
+            sortLines: '行をソート',
+            uniqueLines: '重複行を削除',
+            addLineNumbers: '行番号を追加'
+        };
+
+        // 変換実行
+        function convert(type) {
+            const input = document.getElementById('inputText').value;
+            if (!input) {
+                showToast('テキストを入力してください', 'error');
+                return;
+            }
+
+            const output = converters[type](input);
+            document.getElementById('outputText').value = output;
+            updateCharCount('output');
+
+            // 履歴に追加
+            addToHistory(type, input.substring(0, 50));
+        }
+
+        // 文字数更新
+        function updateCharCount(type) {
+            const text = document.getElementById(type + 'Text').value;
+            document.getElementById(type + 'Count').textContent = text.length + '文字';
+        }
+
+        // 入れ替え
+        function swapTexts() {
+            const input = document.getElementById('inputText');
+            const output = document.getElementById('outputText');
+            const temp = input.value;
+            input.value = output.value;
+            output.value = temp;
+            updateCharCount('input');
+            updateCharCount('output');
+        }
+
+        // コピー
+        function copyOutput() {
+            const output = document.getElementById('outputText').value;
+            if (output) {
+                navigator.clipboard.writeText(output).then(() => {
+                    showToast('コピーしました');
+                });
+            }
+        }
+
+        // クリア
+        function clearAll() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').value = '';
+            updateCharCount('input');
+            updateCharCount('output');
+        }
+
+        // 履歴追加
+        function addToHistory(type, preview) {
+            history.unshift({
+                type: converterNames[type],
+                preview: preview,
+                time: new Date().toLocaleTimeString('ja-JP')
+            });
+            if (history.length > 10) history.pop();
+            saveToStorage('textConvertHistory', history);
+            renderHistory();
+        }
+
+        // 履歴表示
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            if (history.length === 0) {
+                list.innerHTML = '<p style="color: var(--gray-500); text-align: center; padding: 20px;">履歴はありません</p>';
+                return;
+            }
+
+            list.innerHTML = history.map(item => `
+                <div class="history-item">
+                    <div class="history-item-header">
+                        <span class="history-item-type">${item.type}</span>
+                        <span class="history-item-time">${item.time}</span>
+                    </div>
+                    <div class="history-item-text">${escapeHtml(item.preview)}...</div>
+                </div>
+            `).join('');
+        }
+
+        // HTML エスケープ
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 履歴クリア
+        function clearHistory() {
+            history = [];
+            saveToStorage('textConvertHistory', []);
+            renderHistory();
+            showToast('履歴をクリアしました');
+        }
+
+        // 初期化
+        renderHistory();
+    </script>
+</body>
+</html>

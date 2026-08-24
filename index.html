@@ -3,482 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>超シンプルTODO</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
-            background: linear-gradient(180deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: shimmer 3s infinite;
-        }
-        
-        @keyframes shimmer {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(180deg); }
-        }
-        
-        .header h1 {
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .input-section {
-            padding: 24px;
-            background: rgba(255, 255, 255, 0.5);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 12px;
-            position: relative;
-        }
-        
-        #todoInput {
-            flex: 1;
-            padding: 14px 18px;
-            border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            outline: none;
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        #todoInput:focus {
-            background: white;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        #addBtn {
-            padding: 14px 28px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        #addBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        #addBtn:active {
-            transform: translateY(0) scale(0.98);
-        }
-        
-        .todo-list {
-            padding: 20px;
-            max-height: 500px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .todo-list::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .todo-list::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .todo-list::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 3px;
-        }
-        
-        .todo-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 16px;
-            margin-bottom: 10px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 14px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .todo-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transform: scaleY(0);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .todo-item:hover {
-            background: rgba(255, 255, 255, 1);
-            transform: translateX(4px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .todo-item:hover::before {
-            transform: scaleY(1);
-        }
-        
-        .todo-item.completed {
-            opacity: 0.5;
-        }
-        
-        .todo-item.completed .todo-text {
-            text-decoration: line-through;
-            color: #999;
-        }
-        
-        .todo-item.deleting {
-            animation: trashAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        
-        @keyframes trashAnimation {
-            0% {
-                transform: translateX(0) scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: translateX(100px) scale(0.8);
-                opacity: 0.7;
-            }
-            100% {
-                transform: translateX(200px) scale(0.3);
-                opacity: 0;
-            }
-        }
-        
-        .todo-checkbox {
-            width: 22px;
-            height: 22px;
-            cursor: pointer;
-            accent-color: #667eea;
-            border-radius: 6px;
-        }
-        
-        .todo-text {
-            flex: 1;
-            font-size: 17px;
-            color: #1d1d1f;
-            font-weight: 400;
-            letter-spacing: -0.2px;
-        }
-        
-        .delete-btn {
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
-        }
-        
-        .delete-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
-        }
-        
-        .delete-btn:active {
-            transform: translateY(0) scale(0.95);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #999;
-            font-size: 17px;
-        }
-        
-        .empty-state::before {
-            content: "📝";
-            font-size: 64px;
-            display: block;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-        
-        /* キラキラエフェクト */
-        .sparkle-container {
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-        }
-        
-        .sparkle {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: #ffd700;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
-            animation: sparkleAnimation 1.5s ease-out forwards;
-        }
-        
-        @keyframes sparkleAnimation {
-            0% {
-                transform: translate(0, 0) scale(0) rotate(0deg);
-                opacity: 1;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(360deg);
-                opacity: 0;
-            }
-        }
-        
-        /* ゴミ箱アイコン */
-        .trash-icon {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
-            z-index: 1000;
-            font-size: 24px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .trash-icon.active {
-            transform: scale(1.2);
-            box-shadow: 0 6px 30px rgba(255, 107, 107, 0.6);
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                border-radius: 0;
-                margin: 0;
-                max-width: 100%;
-            }
-            
-            .trash-icon {
-                bottom: 20px;
-                right: 20px;
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-        }
-    </style>
+    <meta name="description" content="無料で使えるオンラインツール集。文字数カウント、JSON整形、QRコード生成、パスワード生成、画像圧縮など、便利なWebツールを多数提供。登録不要・完全無料。">
+    <meta name="keywords" content="オンラインツール,文字数カウント,JSON整形,QRコード生成,パスワード生成,画像圧縮,無料ツール">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="WebToolBox - 無料オンラインツール集">
+    <meta property="og:description" content="登録不要・完全無料の便利なWebツール集。文字数カウント、JSON整形、QRコード生成など多数のツールを提供。">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="canonical" href="https://webtoolbox.example.com/">
+    <title>WebToolBox - 無料オンラインツール集 | 文字数カウント・JSON整形・QRコード生成</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧰</text></svg>">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <!-- Google AdSense - アカウント作成後にコードを追加 -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXX" crossorigin="anonymous"></script> -->
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>✨ 超シンプルTODO</h1>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <span class="logo-icon">🧰</span>
+                <span>WebToolBox</span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#tools">ツール一覧</a></li>
+                    <li><a href="#about">このサイトについて</a></li>
+                </ul>
+            </nav>
         </div>
-        
-        <div class="input-section">
-            <div class="input-group">
-                <input 
-                    type="text" 
-                    id="todoInput" 
-                    placeholder="新しいTODOを入力..."
-                    autocomplete="off"
-                >
-                <button id="addBtn">追加</button>
-            </div>
-        </div>
-        
-        <div class="todo-list" id="todoList">
-            <div class="empty-state">TODOがありません</div>
-        </div>
-    </div>
-    
-    <div class="trash-icon" id="trashIcon">🗑️</div>
+    </header>
 
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>無料で使えるオンラインツール集</h1>
+        <p>登録不要・完全無料。文字数カウント、JSON整形、QRコード生成など、<br>日常業務で役立つ便利なWebツールを多数ご用意しています。</p>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Ad Space -->
+        <div class="ad-container horizontal" id="ad-top">
+            <!-- Google AdSense広告コード挿入位置 -->
+            <span>広告スペース (728x90)</span>
+        </div>
+
+        <!-- Tools Grid -->
+        <section id="tools">
+            <div class="tool-grid">
+                <!-- 文字数カウンター -->
+                <a href="tools/character-counter.html" class="tool-card fade-in">
+                    <span class="tool-icon">📝</span>
+                    <h3>文字数カウンター</h3>
+                    <p>文字数・単語数・行数をリアルタイムでカウント。原稿の文字数チェックに最適。</p>
+                    <span class="tool-tag">ライター向け</span>
+                </a>
+
+                <!-- JSON整形 -->
+                <a href="tools/json-formatter.html" class="tool-card fade-in">
+                    <span class="tool-icon">📋</span>
+                    <h3>JSON整形ツール</h3>
+                    <p>JSONデータを見やすく整形・検証。圧縮機能も搭載。開発者必須ツール。</p>
+                    <span class="tool-tag">開発者向け</span>
+                </a>
+
+                <!-- QRコード生成 -->
+                <a href="tools/qr-generator.html" class="tool-card fade-in">
+                    <span class="tool-icon">📱</span>
+                    <h3>QRコード生成</h3>
+                    <p>URL・テキストからQRコードを即座に生成。高画質PNGでダウンロード可能。</p>
+                    <span class="tool-tag">汎用</span>
+                </a>
+
+                <!-- パスワード生成 -->
+                <a href="tools/password-generator.html" class="tool-card fade-in">
+                    <span class="tool-icon">🔐</span>
+                    <h3>パスワード生成</h3>
+                    <p>安全で強力なパスワードを自動生成。長さ・文字種をカスタマイズ可能。</p>
+                    <span class="tool-tag">セキュリティ</span>
+                </a>
+
+                <!-- カラーコード変換 -->
+                <a href="tools/color-converter.html" class="tool-card fade-in">
+                    <span class="tool-icon">🎨</span>
+                    <h3>カラーコード変換</h3>
+                    <p>HEX・RGB・HSL間の相互変換。カラーピッカーでプレビューしながら操作。</p>
+                    <span class="tool-tag">デザイナー向け</span>
+                </a>
+
+                <!-- 画像圧縮 -->
+                <a href="tools/image-compressor.html" class="tool-card fade-in">
+                    <span class="tool-icon">🖼️</span>
+                    <h3>画像圧縮</h3>
+                    <p>画像を高品質のまま軽量化。JPEG/PNG/WebP対応。サーバーに送信せず安全。</p>
+                    <span class="tool-tag">汎用</span>
+                </a>
+
+                <!-- 日付計算 -->
+                <a href="tools/date-calculator.html" class="tool-card fade-in">
+                    <span class="tool-icon">📅</span>
+                    <h3>日付計算</h3>
+                    <p>日数の加算・減算、2つの日付の差を計算。年齢計算や期限管理に便利。</p>
+                    <span class="tool-tag">汎用</span>
+                </a>
+
+                <!-- テキスト変換 -->
+                <a href="tools/text-converter.html" class="tool-card fade-in">
+                    <span class="tool-icon">🔄</span>
+                    <h3>テキスト変換</h3>
+                    <p>大文字/小文字、全角/半角、ひらがな/カタカナ変換。一括変換で作業効率UP。</p>
+                    <span class="tool-tag">汎用</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Ad Space -->
+        <div class="ad-container horizontal" id="ad-middle">
+            <!-- Google AdSense広告コード挿入位置 -->
+            <span>広告スペース (728x90)</span>
+        </div>
+
+        <!-- About Section -->
+        <section id="about" class="info-box">
+            <h2>WebToolBoxについて</h2>
+            <p>WebToolBoxは、日常業務やプライベートで役立つ無料のオンラインツール集です。</p>
+            <ul>
+                <li><strong>完全無料</strong> - すべてのツールを無料でご利用いただけます</li>
+                <li><strong>登録不要</strong> - アカウント登録なしで即座に利用可能</li>
+                <li><strong>プライバシー保護</strong> - データはブラウザ内で処理され、サーバーに送信されません</li>
+                <li><strong>スマホ対応</strong> - PC・タブレット・スマートフォンすべてで快適に動作</li>
+            </ul>
+            <p>ご要望やバグ報告がありましたら、お気軽にお問い合わせください。</p>
+        </section>
+
+        <!-- Keywords for SEO -->
+        <section class="info-box">
+            <h2>人気のツール・キーワード</h2>
+            <p>
+                <a href="tools/character-counter.html">文字数カウント</a> /
+                <a href="tools/json-formatter.html">JSON整形</a> /
+                <a href="tools/json-formatter.html">JSON検証</a> /
+                <a href="tools/qr-generator.html">QRコード作成</a> /
+                <a href="tools/password-generator.html">パスワード自動生成</a> /
+                <a href="tools/color-converter.html">HEX RGB変換</a> /
+                <a href="tools/image-compressor.html">画像圧縮 オンライン</a> /
+                <a href="tools/date-calculator.html">日付計算</a> /
+                <a href="tools/text-converter.html">全角半角変換</a>
+            </p>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="/">ホーム</a>
+                <a href="#tools">ツール一覧</a>
+                <a href="#about">このサイトについて</a>
+                <a href="privacy.html">プライバシーポリシー</a>
+            </div>
+            <p class="copyright">&copy; 2024 WebToolBox. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/common.js"></script>
     <script>
-        const todoInput = document.getElementById('todoInput');
-        const addBtn = document.getElementById('addBtn');
-        const todoList = document.getElementById('todoList');
-        const trashIcon = document.getElementById('trashIcon');
-        
-        let todos = JSON.parse(localStorage.getItem('todos')) || [];
-        let completedCount = 0;
-        
-        function createSparkles(x, y) {
-            const container = document.createElement('div');
-            container.className = 'sparkle-container';
-            document.body.appendChild(container);
-            
-            const count = 20;
-            for (let i = 0; i < count; i++) {
-                const sparkle = document.createElement('div');
-                sparkle.className = 'sparkle';
-                
-                const angle = (Math.PI * 2 * i) / count;
-                const distance = 100 + Math.random() * 50;
-                const tx = Math.cos(angle) * distance;
-                const ty = Math.sin(angle) * distance;
-                
-                sparkle.style.left = x + 'px';
-                sparkle.style.top = y + 'px';
-                sparkle.style.setProperty('--tx', tx + 'px');
-                sparkle.style.setProperty('--ty', ty + 'px');
-                sparkle.style.animationDelay = (Math.random() * 0.3) + 's';
-                
-                container.appendChild(sparkle);
-            }
-            
-            setTimeout(() => {
-                container.remove();
-            }, 2000);
-        }
-        
-        function renderTodos() {
-            if (todos.length === 0) {
-                todoList.innerHTML = '<div class="empty-state">TODOがありません</div>';
-                return;
-            }
-            
-            todoList.innerHTML = todos.map((todo, index) => `
-                <div class="todo-item ${todo.completed ? 'completed' : ''}" data-index="${index}">
-                    <input 
-                        type="checkbox" 
-                        class="todo-checkbox" 
-                        ${todo.completed ? 'checked' : ''}
-                        onchange="toggleTodo(${index})"
-                    >
-                    <span class="todo-text">${escapeHtml(todo.text)}</span>
-                    <button class="delete-btn" onclick="deleteTodo(${index})">削除</button>
-                </div>
-            `).join('');
-        }
-        
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        function addTodo() {
-            const text = todoInput.value.trim();
-            if (!text) return;
-            
-            const rect = addBtn.getBoundingClientRect();
-            const x = rect.left + rect.width / 2;
-            const y = rect.top + rect.height / 2;
-            
-            createSparkles(x, y);
-            
-            todos.push({ text, completed: false });
-            todoInput.value = '';
-            saveTodos();
-            renderTodos();
-            
-            // 入力フィールドにフォーカスを戻す
-            setTimeout(() => {
-                todoInput.focus();
-            }, 100);
-        }
-        
-        function deleteTodo(index) {
-            todos.splice(index, 1);
-            saveTodos();
-            renderTodos();
-        }
-        
-        function toggleTodo(index) {
-            const wasCompleted = todos[index].completed;
-            todos[index].completed = !todos[index].completed;
-            saveTodos();
-            
-            if (todos[index].completed && !wasCompleted) {
-                // 完了したタスクをゴミ箱に捨てるアニメーション
-                const todoItem = document.querySelector(`[data-index="${index}"]`);
-                if (todoItem) {
-                    todoItem.classList.add('deleting');
-                    
-                    // ゴミ箱アイコンをアニメーション
-                    trashIcon.classList.add('active');
-                    
-                    setTimeout(() => {
-                        // 実際には削除せず、完了状態を保持
-                        renderTodos();
-                        trashIcon.classList.remove('active');
-                    }, 600);
-                }
-            } else {
-                renderTodos();
-            }
-        }
-        
-        function saveTodos() {
-            localStorage.setItem('todos', JSON.stringify(todos));
-        }
-        
-        addBtn.addEventListener('click', addTodo);
-        
-        todoInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                addTodo();
-            }
+        // フェードインアニメーション
+        const cards = document.querySelectorAll('.tool-card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
         });
-        
-        renderTodos();
     </script>
 </body>
 </html>
